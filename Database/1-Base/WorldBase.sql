@@ -18,6 +18,179 @@ USE `ace_world`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `ace_content`
+--
+
+DROP TABLE IF EXISTS `ace_content`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_content` (
+  `contentGuid` binary(16) NOT NULL,
+  `contentName` text NOT NULL,
+  `contentType` int(3) unsigned DEFAULT NULL COMMENT 'ACE.Entity.Enum.ContentType',
+  `userModified` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`contentGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_content`
+--
+
+LOCK TABLES `ace_content` WRITE;
+/*!40000 ALTER TABLE `ace_content` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_content` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ace_content_landblock`
+--
+
+DROP TABLE IF EXISTS `ace_content_landblock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_content_landblock` (
+  `contentLandblockGuid` binary(16) NOT NULL,
+  `contentGuid` binary(16) NOT NULL,
+  `landblockId` int(10) unsigned NOT NULL COMMENT '0x####0000.  lower word should be all 0s.',
+  `comment` text,
+  PRIMARY KEY (`contentLandblockGuid`),
+  KEY `contentGuid` (`contentGuid`,`landblockId`),
+  CONSTRAINT `ace_content_landblock_ibfk_1` FOREIGN KEY (`contentGuid`) REFERENCES `ace_content` (`contentGuid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_content_landblock`
+--
+
+LOCK TABLES `ace_content_landblock` WRITE;
+/*!40000 ALTER TABLE `ace_content_landblock` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_content_landblock` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ace_content_link`
+--
+
+DROP TABLE IF EXISTS `ace_content_link`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_content_link` (
+  `contentGuid1` binary(16) NOT NULL,
+  `contentGuid2` binary(16) NOT NULL,
+  PRIMARY KEY (`contentGuid1`,`contentGuid2`),
+  KEY `ace_content_link_ibfk_2` (`contentGuid2`),
+  CONSTRAINT `ace_content_link_ibfk_1` FOREIGN KEY (`contentGuid1`) REFERENCES `ace_content` (`contentGuid`) ON DELETE CASCADE,
+  CONSTRAINT `ace_content_link_ibfk_2` FOREIGN KEY (`contentGuid2`) REFERENCES `ace_content` (`contentGuid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_content_link`
+--
+
+LOCK TABLES `ace_content_link` WRITE;
+/*!40000 ALTER TABLE `ace_content_link` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_content_link` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ace_content_resource`
+--
+
+DROP TABLE IF EXISTS `ace_content_resource`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_content_resource` (
+  `contentResourceGuid` binary(16) NOT NULL,
+  `contentGuid` binary(16) NOT NULL,
+  `name` text NOT NULL,
+  `resourceUri` text NOT NULL,
+  `comment` text,
+  PRIMARY KEY (`contentResourceGuid`),
+  KEY `ace_content_resource_ibfk_1` (`contentGuid`),
+  CONSTRAINT `ace_content_resource_ibfk_1` FOREIGN KEY (`contentGuid`) REFERENCES `ace_content` (`contentGuid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_content_resource`
+--
+
+LOCK TABLES `ace_content_resource` WRITE;
+/*!40000 ALTER TABLE `ace_content_resource` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_content_resource` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ace_content_weenie`
+--
+
+DROP TABLE IF EXISTS `ace_content_weenie`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_content_weenie` (
+  `contentWeenieGuid` binary(16) NOT NULL,
+  `contentGuid` binary(16) NOT NULL,
+  `weenieId` int(10) unsigned NOT NULL,
+  `comment` text,
+  PRIMARY KEY (`contentWeenieGuid`),
+  KEY `ace_content_weenie_ibfk_1` (`contentGuid`),
+  KEY `ace_content_weenie_ibfk_2` (`weenieId`),
+  CONSTRAINT `ace_content_weenie_ibfk_1` FOREIGN KEY (`contentGuid`) REFERENCES `ace_content` (`contentGuid`) ON DELETE CASCADE,
+  CONSTRAINT `ace_content_weenie_ibfk_2` FOREIGN KEY (`weenieId`) REFERENCES `ace_object` (`aceObjectId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_content_weenie`
+--
+
+LOCK TABLES `ace_content_weenie` WRITE;
+/*!40000 ALTER TABLE `ace_content_weenie` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_content_weenie` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ace_landblock`
+--
+
+DROP TABLE IF EXISTS `ace_landblock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_landblock` (
+  `instanceId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `landblock` int(5) GENERATED ALWAYS AS ((`landblockRaw` >> 16)) VIRTUAL,
+  `weenieClassId` int(10) unsigned NOT NULL,
+  `preassignedGuid` int(10) unsigned DEFAULT NULL,
+  `landblockRaw` int(10) unsigned NOT NULL,
+  `posX` float NOT NULL,
+  `posY` float NOT NULL,
+  `posZ` float NOT NULL,
+  `qW` float NOT NULL,
+  `qX` float NOT NULL,
+  `qY` float NOT NULL,
+  `qZ` float NOT NULL,
+  PRIMARY KEY (`instanceId`),
+  UNIQUE KEY `instanceId_UNIQUE` (`instanceId`),
+  UNIQUE KEY `preassignedGuid_UNIQUE` (`preassignedGuid`),
+  KEY `fk_lb_weenie_idx` (`weenieClassId`),
+  KEY `fk_lb_idx` (`landblock`),
+  CONSTRAINT `fk_weenie_lb` FOREIGN KEY (`weenieClassId`) REFERENCES `ace_weenie_class` (`weenieClassId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_landblock`
+--
+
+LOCK TABLES `ace_landblock` WRITE;
+/*!40000 ALTER TABLE `ace_landblock` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_landblock` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `ace_object`
 --
 
@@ -28,7 +201,9 @@ CREATE TABLE `ace_object` (
   `aceObjectId` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `aceObjectDescriptionFlags` int(10) unsigned NOT NULL,
   `weenieClassId` int(10) unsigned NOT NULL,
+  `userModified` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'flag indicating whether or not this has record has been altered since deployment',
   `weenieHeaderFlags` int(10) unsigned DEFAULT NULL,
+  `weenieHeaderFlags2` int(10) unsigned DEFAULT NULL,
   `physicsDescriptionFlag` int(10) unsigned DEFAULT NULL,
   `currentMotionState` text,
   PRIMARY KEY (`aceObjectId`),
@@ -97,6 +272,35 @@ CREATE TABLE `ace_object_generator_link` (
 LOCK TABLES `ace_object_generator_link` WRITE;
 /*!40000 ALTER TABLE `ace_object_generator_link` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ace_object_generator_link` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ace_object_inventory`
+--
+
+DROP TABLE IF EXISTS `ace_object_inventory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_object_inventory` (
+  `aceObjectId` int(10) unsigned NOT NULL DEFAULT '0',
+  `destinationType` tinyint(5) NOT NULL DEFAULT '0',
+  `weenieClassId` int(10) unsigned NOT NULL DEFAULT '0',
+  `stackSize` int(10) NOT NULL DEFAULT '1',
+  `palette` tinyint(5) NOT NULL DEFAULT '0',
+  KEY `fk_Inventory_AceObject_idx` (`aceObjectId`),
+  KEY `fk_Inventory_Weenie_idx` (`weenieClassId`),
+  CONSTRAINT `fk_Inventory_AceObject` FOREIGN KEY (`aceObjectId`) REFERENCES `ace_object` (`aceObjectId`) ON DELETE CASCADE,
+  CONSTRAINT `fk_Inventory_Weenie` FOREIGN KEY (`weenieClassId`) REFERENCES `ace_weenie_class` (`weenieClassId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_object_inventory`
+--
+
+LOCK TABLES `ace_object_inventory` WRITE;
+/*!40000 ALTER TABLE `ace_object_inventory` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_object_inventory` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -358,7 +562,7 @@ CREATE TABLE `ace_object_properties_int` (
   `aceObjectId` int(10) unsigned NOT NULL DEFAULT '0',
   `intPropertyId` smallint(5) unsigned NOT NULL DEFAULT '0',
   `propertyIndex` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `propertyValue` int(10) unsigned NOT NULL DEFAULT '0',
+  `propertyValue` int(10) NOT NULL DEFAULT '0',
   UNIQUE KEY `ace_object__property_int_id` (`aceObjectId`,`intPropertyId`),
   KEY `aceObjectId` (`aceObjectId`),
   CONSTRAINT `fk_Prop_Int_AceObject` FOREIGN KEY (`aceObjectId`) REFERENCES `ace_object` (`aceObjectId`) ON DELETE CASCADE
@@ -516,6 +720,44 @@ LOCK TABLES `ace_position` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `ace_recipe`
+--
+
+DROP TABLE IF EXISTS `ace_recipe`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ace_recipe` (
+  `recipeGuid` binary(16) NOT NULL COMMENT 'surrogate key',
+  `recipeType` tinyint(3) unsigned NOT NULL COMMENT 'see RecipeType enum in code',
+  `userModified` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'flag indicating whether or not this has record has been altered since deployment',
+  `sourceWcid` int(10) unsigned NOT NULL COMMENT 'the object being used',
+  `targetWcid` int(10) unsigned NOT NULL COMMENT 'the target of use',
+  `skillId` smallint(6) unsigned DEFAULT NULL COMMENT 'skill required for the formula, if any',
+  `skillDifficulty` smallint(6) unsigned DEFAULT NULL COMMENT 'skill value required for 50% success',
+  `partialFailDifficulty` smallint(6) unsigned DEFAULT NULL COMMENT 'skill value for a partial botch (dyed clothing)',
+  `successMessage` text,
+  `failMessage` text,
+  `alternateMessage` text,
+  `resultFlags` int(10) unsigned DEFAULT NULL COMMENT 'bitmask of what happens.  see RecipeResults enum in code',
+  `successItem1Wcid` int(10) unsigned DEFAULT NULL,
+  `successItem2Wcid` int(10) unsigned DEFAULT NULL,
+  `failureItem1Wcid` int(10) unsigned DEFAULT NULL,
+  `failureItem2Wcid` int(10) unsigned DEFAULT NULL,
+  `healingAttribute` smallint(6) unsigned DEFAULT NULL COMMENT 'used by recipeType = Healing. health = 64, stam = 128, mana = 256. if null, will default to health. source enum: ACE.Entity.Enum.Ability',
+  PRIMARY KEY (`recipeGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ace_recipe`
+--
+
+LOCK TABLES `ace_recipe` WRITE;
+/*!40000 ALTER TABLE `ace_recipe` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ace_recipe` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `ace_weenie_class`
 --
 
@@ -607,6 +849,24 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Temporary view structure for view `vw_weenie_search`
+--
+
+DROP TABLE IF EXISTS `vw_weenie_search`;
+/*!50001 DROP VIEW IF EXISTS `vw_weenie_search`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `vw_weenie_search` AS SELECT 
+ 1 AS `aceObjectId`,
+ 1 AS `userModified`,
+ 1 AS `weenieClassId`,
+ 1 AS `weenieClassDescription`,
+ 1 AS `name`,
+ 1 AS `itemType`,
+ 1 AS `weenieType`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Final view structure for view `vw_ace_object`
 --
 
@@ -659,6 +919,24 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `vw_weenie_search`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_weenie_search`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vw_weenie_search` AS (select `ao`.`aceObjectId` AS `aceObjectId`,`ao`.`userModified` AS `userModified`,`ao`.`weenieClassId` AS `weenieClassId`,`wc`.`weenieClassDescription` AS `weenieClassDescription`,`names`.`propertyValue` AS `name`,`itemtype`.`propertyValue` AS `itemType`,`weenietype`.`propertyValue` AS `weenieType` from ((((`ace_object` `ao` left join `ace_weenie_class` `wc` on((`ao`.`aceObjectId` = `wc`.`weenieClassId`))) left join `ace_object_properties_string` `names` on(((`ao`.`aceObjectId` = `names`.`aceObjectId`) and (`names`.`strPropertyId` = 1)))) left join `ace_object_properties_int` `weenietype` on(((`ao`.`aceObjectId` = `weenietype`.`aceObjectId`) and (`weenietype`.`intPropertyId` = 9007)))) left join `ace_object_properties_int` `itemtype` on(((`ao`.`aceObjectId` = `itemtype`.`aceObjectId`) and (`itemtype`.`intPropertyId` = 1)))) where (`ao`.`aceObjectId` = `ao`.`weenieClassId`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -669,4 +947,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-05 19:16:23
+-- Dump completed on 2017-10-29 16:05:24
